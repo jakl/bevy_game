@@ -49,11 +49,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     kb_map.insert(PlayerAction::MoveRight, KeyCode::KeyD);
 
     commands.spawn((
-        Player { speed: 10.0 },
+        Player { speed: 100.0 },
         kb_map,
         ActionState::<PlayerAction>::default(),
         Sprite::from_image(texture_handle.clone()),
-        Transform::from_xyz(-5.0, 0.0, rand::random::<f32>()),
+        Transform::from_xyz(-500.0, -200.0, rand::random::<f32>()),
         RigidBody::Dynamic,
         Collider::circle(1.0),
         LinearVelocity::ZERO,
@@ -68,11 +68,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     pad_map.insert(PlayerAction::MoveRight, GamepadButton::DPadRight);
 
     commands.spawn((
-        Player { speed: 10.0 },
+        Player { speed: 100.0 },
         pad_map,
         ActionState::<PlayerAction>::default(),
         Sprite::from_image(texture_handle),
-        Transform::from_xyz(5.0, 0.0, rand::random::<f32>()),
+        Transform::from_xyz(500.0, 200.0, rand::random::<f32>()),
         RigidBody::Dynamic,
         Collider::circle(1.0),
         LinearVelocity::ZERO,
@@ -100,7 +100,6 @@ fn toggle_fullscreen(
     if action_state.just_pressed(&SystemAction::ToggleFullscreen) {
         let Ok(mut window) = window_query.single_mut() else { return; };
         
-        // Explicitly target the primary monitor when going fullscreen
         window.mode = match window.mode {
             WindowMode::Windowed => WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
             _ => WindowMode::Windowed,
@@ -114,10 +113,10 @@ fn apply_movement(
     for (player, action_state, mut velocity) in &mut query {
         let mut direction = Vec2::ZERO;
 
-        if action_state.pressed(&PlayerAction::MoveUp) { direction.y += 1.0; }
-        if action_state.pressed(&PlayerAction::MoveDown) { direction.y -= 1.0; }
-        if action_state.pressed(&PlayerAction::MoveRight) { direction.x += 1.0; }
-        if action_state.pressed(&PlayerAction::MoveLeft) { direction.x -= 1.0; }
+        if action_state.pressed(&PlayerAction::MoveUp) { direction.y += player.speed; }
+        if action_state.pressed(&PlayerAction::MoveDown) { direction.y -= player.speed; }
+        if action_state.pressed(&PlayerAction::MoveRight) { direction.x += player.speed; }
+        if action_state.pressed(&PlayerAction::MoveLeft) { direction.x -= player.speed; }
 
         if direction.length_squared() > 0.0 {
             direction = direction.normalize();
@@ -132,7 +131,7 @@ fn main() {
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
-                    title: "Bevy Physics & Input Demo".into(),
+                    title: "Jakl's Bevy Engine Demo".into(),
                     resolution: (1600, 900).into(),
                     present_mode: PresentMode::AutoVsync, 
                     resizable: true,
